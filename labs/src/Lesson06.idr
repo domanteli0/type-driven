@@ -114,7 +114,6 @@ myReverse {n = S k} (x :: xs) =
     in rewrite plusCommutative 1 k
     in result
 
-
 -- hole : S (plus n k) = S (plus k n)
 myPlusCommute : (n : Nat) -> (m : Nat) -> n + m = m + n
 myPlusCommute n 0 = rewrite plusZeroRightNeutral n in Refl

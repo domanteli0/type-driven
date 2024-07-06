@@ -131,24 +131,39 @@ myTailUnEq :
     (Lesson07.(::) x xs = Lesson07.(::) y ys -> Void)
 myTailUnEq contr Refl = contr Refl
 
-myTeadUnEq : 
+myHeadUnEq : 
           {xs: MyVect n a} ->
           {ys: MyVect n a} ->
           (contr : x = y -> Void) ->
           (x :: xs = y :: ys -> Void)
-myTeadUnEq contr Refl = contr Refl
+myHeadUnEq contr Refl = contr Refl
+
+noSignelton : (x = y -> Void) -> MyVect (S Z) a = MyVect (S Z) a -> Void
+noSignelton f prf = ?noSignelton_rhs
+
+singleton' : (x = y -> Void) -> x :: Lesson07.Nil = y :: Lesson07.Nil -> Void
+singleton' f Refl = f Refl
+
+headTailEq : xs = ys -> x = y -> x Lesson07.(::) xs = y Lesson07.(::) ys
+    
+manyNotEq : (x = y -> Void) -> (x Lesson07.(::) xs = y Lesson07.(::) ys) -> Void
+
+-- notEqMyVect : a -> (xs = ys -> Void) -> x Lesson07.(::) xs = x Lesson07.(::) ys -> Void
+notEqMyVect : (xs = ys -> Void) -> Lesson07.(::) x xs = Lesson07.(::) x ys -> Void
+notEqMyVect f Refl = f Refl
+
+headNotEq :(x = y -> Void) -> Lesson07.(::) x xs = Lesson07.(::) y ys -> Void
+headNotEq f Refl = f Refl
 
 DecEq a => DecEq (MyVect n a) where
     decEq [] [] = Yes Refl
-    decEq [x] [y] =
+    decEq (x :: (xs)) (y :: (ys)) =
         case decEq x y of
-             (Yes Refl) => Yes $ cong ( (flip (::)) Nil ) Refl
-             (No contra) => No $ welp contra
+            (Yes Refl) => case decEq xs ys of
+                              (Yes Refl) => Yes $ cong (:: xs) Refl
+                              (No contra) => No (notEqMyVect contra)
+            (No contra) => No (headNotEq contra)
 
-    decEq (x :: xs) (y :: ys) =
-        case decEq xs ys of
-             (No contra) => No $ myTailUnEq contra
-             (Yes Refl) =>
-                case decEq x y of
-                     (No contra) => No $ myTeadUnEq contra
-                     (Yes Refl) => Yes $ cong ( (flip (::)) ys ) Refl
+reverse : Vect n el -> Vect n el
+reverse [] = []
+reverse (x :: xs) = ?reverse_rhs_1
